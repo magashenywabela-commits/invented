@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Which Was Invented First?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@700;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f4ecd8;--ink:#1c1713;--dim:#6b5d4a;--acc:#ff5a36;--good:#1f9d55;--bad:#d62839;--paper:#fffaf0;--serif:"Fraunces",Georgia,"Times New Roman",serif;--sans:"Space Grotesk",system-ui,"Segoe UI",sans-serif}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;text-align:center;background:var(--bg);color:var(--ink);font-family:var(--sans)}
+/* dot-grid paper */
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background-image:radial-gradient(rgba(28,23,19,.17) 1.3px,transparent 1.5px);background-size:24px 24px}
+body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 55%,rgba(120,90,40,.22) 100%)}
+#fx-bg{position:fixed;inset:0;z-index:0}
+#fx-spark{position:fixed;inset:0;z-index:5;pointer-events:none}
+#app{position:relative;z-index:1;width:min(980px,100%)}
+
+h1{display:inline-block;margin:0 0 .5em;padding:0 .15em;font-family:var(--serif);font-weight:900;font-size:clamp(2.3rem,7vw,4.6rem);line-height:1.05;letter-spacing:-.03em;color:var(--ink);background:linear-gradient(transparent 58%,#ffd23f 58% 90%,transparent 90%);transform:rotate(-1.5deg)}
+h2{font-family:var(--serif);font-weight:900;font-size:clamp(1.6rem,3.6vw,2.5rem);letter-spacing:-.02em;margin:.4em 0}
+p{color:var(--dim);font-size:1.15rem;font-weight:500}
+
+button{font:inherit;color:inherit;cursor:pointer}
+#btn-start,#btn-next,#btn-restart{margin-top:22px;padding:14px 34px;border:3px solid var(--ink);border-radius:12px;background:var(--acc);color:var(--ink);font-weight:700;font-size:1.1rem;box-shadow:5px 5px 0 var(--ink);transition:transform .12s,box-shadow .12s}
+#btn-start:hover,#btn-next:hover,#btn-restart:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(--ink)}
+#btn-start:active,#btn-next:active,#btn-restart:active{transform:translate(3px,3px);box-shadow:2px 2px 0 var(--ink)}
+
+#hud{display:flex;justify-content:space-between;gap:12px;margin-bottom:24px;font-weight:600}
+#hud>span{padding:6px 16px;border:2px solid var(--ink);border-radius:99px;background:var(--paper);box-shadow:3px 3px 0 var(--ink)}
+#hud span span{color:var(--ink);font-weight:700}
+
+:is(.card,.option,#statement-card,#tester){position:relative;overflow:hidden;transition:transform .15s,box-shadow .15s,opacity .3s,background .25s}
+:is(.card,.option,#statement-card,#tester)::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .25s;background:radial-gradient(240px circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.7),transparent 70%)}
+:is(.card,.option,#statement-card,#tester):hover::before{opacity:1}
+.card,.option,#statement-card,#tester{border:3px solid var(--ink);border-radius:16px;background:var(--paper);box-shadow:6px 6px 0 var(--ink)}
+
+#options{display:flex;gap:22px;flex-wrap:wrap;justify-content:center;margin:24px 0}
+.option{flex:1;min-width:210px;padding:34px 20px;font-family:var(--serif);font-size:1.3rem;font-weight:700}
+.option:nth-child(1){background:#ffe08a}
+.option:nth-child(2){background:#b8e6d3}
+.option:nth-child(3){background:#f7b8c4}
+.option:nth-child(1){transform:rotate(-1deg)}
+.option:nth-child(3){transform:rotate(1deg)}
+.option:hover{box-shadow:9px 9px 0 var(--ink);translate:-3px -3px}
+.name{display:block}
+.year{display:block;margin-top:12px;font-family:var(--serif);font-weight:900;font-size:2.8rem;line-height:1;color:var(--ink)}
+
+#timeline{max-width:760px;margin:22px auto;padding:14px 8px;border-top:3px solid var(--ink);border-bottom:3px solid var(--ink);font-weight:700;color:var(--ink)}
+.tl-item{display:inline-block;margin:4px 2px;padding:4px 14px;border-radius:99px;background:var(--ink);color:var(--paper);font-weight:600;font-size:.95rem}
+#fact{max-width:640px;margin:22px auto 0;color:var(--ink);font-family:var(--serif);font-style:italic;font-size:1.3rem;line-height:1.4}
+
+.option[data-state=correct]{background:#a9ecbf!important;box-shadow:8px 8px 0 var(--good)}
+.option[data-state=wrong]{background:#ffb0b9!important;box-shadow:8px 8px 0 var(--bad)}
+.option[data-state=other]{opacity:.45;filter:grayscale(.6)}
+.option[data-state=correct],.option[data-state=wrong],.option[data-state=other]{pointer-events:none}
+
+@media(max-width:640px){.option{transform:none!important}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main id="app">
+
+  <section id="screen-start">
+    <h1>Which Was Invented First?</h1>
+    <p>Three pieces of tech. Tap the one that came first.</p>
+    <button id="btn-start">Start</button>
+  </section>
+
+  <section id="screen-game" hidden>
+    <header id="hud">
+      <span>Question <span id="q-num">1</span> of <span id="q-total">5</span></span>
+      <span>Score: <span id="score">0</span></span>
+    </header>
+
+    <h2 id="question">Which came first?</h2>
+
+    <!-- Option buttons are generated by the script: .option[data-state] with .name and .year -->
+    <div id="options"></div>
+
+    <div id="timeline" hidden></div>
+    <p id="fact" hidden></p>
+    <button id="btn-next" hidden>Next</button>
+  </section>
+
+  <section id="screen-end" hidden>
+    <h2>Done!</h2>
+    <p id="final-score"></p>
+    <button id="btn-restart">Play again</button>
+    <!-- Add your QR code image here -->
+  </section>
+
+</main>
+
+<script>
+/* Double-check years before the event. */
+const questions = [
+  { items:[{name:"Computer mouse", year:1964},{name:"Email", year:1971},{name:"Game Boy", year:1989}],
+    fact:"Douglas Engelbart's mouse prototype is older than email. It was made of wood." },
+  { items:[{name:"Wikipedia", year:2001},{name:"Google", year:1998},{name:"YouTube", year:2005}],
+    fact:"Google was founded in 1998. Its first name was BackRub." },
+  { items:[{name:"Bluetooth", year:1999},{name:"iPhone", year:2007},{name:"USB", year:1996}],
+    fact:"USB arrived in 1996 to replace a mess of different cables." },
+  { items:[{name:"First text message (SMS)", year:1992},{name:"World Wide Web", year:1989},{name:"Wi-Fi standard", year:1997}],
+    fact:"The Web was proposed in 1989 by Tim Berners-Lee at CERN." },
+  { items:[{name:"Facebook", year:2004},{name:"Twitter", year:2006},{name:"Instagram", year:2010}],
+    fact:"Instagram launched in 2010 and gained its first million users in about two months." }
+];
+
+const $ = id => document.getElementById(id);
+let index = 0, score = 0, locked = false;
+
+function show(screen){
+  ["screen-start","screen-game","screen-end"].forEach(s => $(s).hidden = (s !== screen));
+}
+
+function loadQuestion(){
+  const q = questions[index];
+  locked = false;
+  $("q-num").textContent = index + 1;
+  $("q-total").textContent = questions.length;
+  $("score").textContent = score;
+  $("options").innerHTML = "";
+  q.items.forEach((item, i) => {
+    const b = document.createElement("button");
+    b.className = "option";
+    b.dataset.state = "idle";
+    b.dataset.index = i;
+    b.innerHTML = '<span class="name"></span> <span class="year" hidden></span>';
+    b.querySelector(".name").textContent = item.name;
+    b.querySelector(".year").textContent = item.year;
+    b.addEventListener("click", () => choose(i));
+    $("options").appendChild(b);
+  });
+  $("timeline").hidden = true;
+  $("fact").hidden = true;
+  $("btn-next").hidden = true;
+}
+
+function choose(i){
+  if (locked) return;
+  locked = true;
+  const q = questions[index];
+  const earliest = Math.min(...q.items.map(x => x.year));
+  const correct = q.items[i].year === earliest;
+  if (correct) score++;
+  $("score").textContent = score;
+
+  document.querySelectorAll(".option").forEach((b, n) => {
+    b.querySelector(".year").hidden = false;
+    b.dataset.state = (q.items[n].year === earliest) ? "correct" : (n === i ? "wrong" : "other");
+  });
+
+  // Timeline: items sorted by year (animate this with GSAP later)
+  const sorted = [...q.items].sort((a, b) => a.year - b.year);
+  $("timeline").innerHTML = sorted.map(x => '<span class="tl-item">' + x.year + ': ' + x.name + '</span>').join(" → ");
+  $("timeline").hidden = false;
+  $("fact").textContent = (correct ? "Correct! " : "Not quite. ") + q.fact;
+  $("fact").hidden = false;
+  $("btn-next").hidden = false;
+  $("btn-next").textContent = (index === questions.length - 1) ? "See results" : "Next";
+}
+
+function next(){
+  index++;
+  if (index >= questions.length){
+    $("final-score").textContent = "You got " + score + " out of " + questions.length + ".";
+    show("screen-end");
+  } else loadQuestion();
+}
+
+function restart(){ index = 0; score = 0; loadQuestion(); show("screen-game"); }
+
+$("btn-start").addEventListener("click", restart);
+$("btn-restart").addEventListener("click", restart);
+$("btn-next").addEventListener("click", next);
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+/* Shared effects. Reads the games' existing ids/classes/data-state, so game logic is untouched.
+   Plain JS recreations of: LetterGlitch, ClickSpark, SpotlightCard, TiltedCard, DecryptedText, CountUp. */
+(() => {
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const hasGsap = () => !!window.gsap && !reduce;
+
+  const acc = '#1c1713';
+
+  /* ---- Floating years background ---- */
+  const bg = document.createElement('canvas');
+  bg.id = 'fx-bg';
+  document.body.prepend(bg);
+  const g = bg.getContext('2d'), years = [];
+  for (let y = 1958; y <= 2012; y += 2) years.push(y);
+  let items = [];
+  const mk = rand => ({ t: years[Math.random() * years.length | 0], x: Math.random() * bg.width, y: rand ? Math.random() * bg.height : bg.height + 60, s: .15 + Math.random() * .4, sz: 22 + Math.random() * 56 });
+  function initBg() {
+    bg.width = innerWidth; bg.height = innerHeight;
+    items = Array.from({ length: Math.max(12, Math.round(innerWidth / 75)) }, () => mk(true));
+  }
+  function draw() {
+    g.clearRect(0, 0, bg.width, bg.height);
+    g.fillStyle = acc;
+    items.forEach(i => {
+      g.font = '900 ' + i.sz + 'px Fraunces, Georgia, serif';
+      g.globalAlpha = .06 + i.sz / 900;
+      g.fillText(i.t, i.x, i.y);
+      if (!reduce) { i.y -= i.s; if (i.y < -80) Object.assign(i, mk(false)); }
+    });
+  }
+  initBg(); addEventListener('resize', initBg);
+  if (reduce) draw(); else (function loop() { draw(); requestAnimationFrame(loop); })();
+
+  /* ---- ClickSpark ---- */
+  const sp = document.createElement('canvas');
+  sp.id = 'fx-spark'; document.body.append(sp);
+  const sc = sp.getContext('2d'); let sparks = [];
+  const SC = ['#1c1713','#ff5a36'], SN = 10;
+  const sizeSp = () => { sp.width = innerWidth; sp.height = innerHeight; };
+  sizeSp(); addEventListener('resize', sizeSp);
+  addEventListener('pointerdown', e => {
+    const t = performance.now();
+    for (let i = 0; i < SN; i++) sparks.push({ x: e.clientX, y: e.clientY, a: Math.PI * 2 * i / SN, t, c: SC[i % SC.length] });
+  });
+  (function loop(t) {
+    sc.clearRect(0, 0, sp.width, sp.height);
+    sparks = sparks.filter(s => t - s.t < 450);
+    sc.lineWidth = 3; sc.lineCap = 'round';
+    sparks.forEach(s => {
+      const p = (t - s.t) / 450, d = 16 * (1 - (1 - p) * (1 - p)), l = 12 * (1 - p);
+      sc.strokeStyle = s.c;
+      sc.beginPath();
+      sc.moveTo(s.x + Math.cos(s.a) * d, s.y + Math.sin(s.a) * d);
+      sc.lineTo(s.x + Math.cos(s.a) * (d + l), s.y + Math.sin(s.a) * (d + l));
+      sc.stroke();
+    });
+    requestAnimationFrame(loop);
+  })(performance.now());
+
+  /* ---- Spotlight + Tilt on cards (delegated, so generated options work too) ---- */
+  const CARD = '.card,.option,#statement-card,#tester';
+  document.addEventListener('pointermove', e => {
+    const c = e.target.closest && e.target.closest(CARD);
+    if (!c) return;
+    const r = c.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+    c.style.setProperty('--mx', x + 'px'); c.style.setProperty('--my', y + 'px');
+    if (!reduce && 0 && c.id !== 'tester')
+      c.style.transform = `perspective(700px) rotateX(${-(y / r.height - .5) * 0}deg) rotateY(${(x / r.width - .5) * 0}deg) scale(1)`;
+  });
+  document.addEventListener('pointerout', e => {
+    const c = e.target.closest && e.target.closest(CARD);
+    if (c && !c.contains(e.relatedTarget)) c.style.transform = '';
+  });
+
+  /* ---- DecryptedText ---- */
+  const pool = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  function decrypt(el, ms = 650) {
+    const text = el.textContent, n = text.length;
+    el._last = text;
+    if (reduce || !n) return;
+    el._busy = true;
+    const t0 = performance.now();
+    (function f(t) {
+      const p = Math.min(1, (t - t0) / ms), k = Math.floor(p * n);
+      el.textContent = text.slice(0, k) + [...text.slice(k)].map(c => c === ' ' ? c : pool[Math.random() * pool.length | 0]).join('');
+      if (p < 1) requestAnimationFrame(f); else { el.textContent = text; el._busy = false; }
+    })(t0);
+  }
+  /* Decrypt whenever the game writes new text into these elements */
+  const watch = el => new MutationObserver(() => {
+    if (el._busy || el.textContent === el._last) return;
+    decrypt(el);
+  }).observe(el, { childList: true, characterData: true });
+  ['.password', '#statement', '#feedback', '#reveal', '#fact', '#final-score', '#best-streak'].forEach(s => $$(s).forEach(watch));
+
+  /* ---- CountUp on the score ---- */
+  const score = $('#score');
+  if (score) {
+    score._v = 0;
+    new MutationObserver(() => {
+      const to = +score.textContent;
+      if (score._busy || to === score._v) return;
+      const from = score._v, t0 = performance.now();
+      score._busy = true;
+      (function f(t) {
+        const p = Math.min(1, (t - t0) / 400);
+        score.textContent = Math.round(from + (to - from) * p);
+        if (p < 1) requestAnimationFrame(f); else { score._v = to; score._busy = false; }
+      })(t0);
+    }).observe(score, { childList: true, characterData: true });
+  }
+
+  /* ---- GSAP: screen transitions + answer feedback ---- */
+  $$('section').forEach(s => new MutationObserver(() => {
+    if (s.hidden) return;
+    $$('h1,h2', s).forEach(h => decrypt(h));
+    if (hasGsap()) gsap.from(s, { opacity: 0, y: 36, rotate: -1.5, duration: .6, ease: 'back.out(1.6)', clearProps: 'all' });
+  }).observe(s, { attributes: true, attributeFilter: ['hidden'] }));
+  $$('#screen-start h1').forEach(h => decrypt(h));
+
+  new MutationObserver(list => list.forEach(m => {
+    if (!hasGsap()) return;
+    const el = m.target, s = el.dataset.state;
+    if (s === 'wrong' || s === 'loser') gsap.fromTo(el, { x: -10 }, { x: 0, duration: .5, ease: 'elastic.out(1,.3)', clearProps: 'x' });
+    if (s === 'correct' || s === 'winner') gsap.fromTo(el, { scale: .94 }, { scale: 1, duration: .6, ease: 'back.out(2)', clearProps: 'scale' });
+  })).observe(document.body, { subtree: true, attributes: true, attributeFilter: ['data-state'] });
+})();
+
+</script>
+</body>
+</html>
